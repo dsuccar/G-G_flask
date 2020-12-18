@@ -1,41 +1,46 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy 
 from flask_marshmallow import Marshmallow 
+from flask_cors import CORS
 import os
 
 # Init app
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
+CORS(app)
+
 # Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 # Init db
 db = SQLAlchemy(app)
+
 # Init ma
 ma = Marshmallow(app)
 
 # Employee Class/Model
 class Employee(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  firstname = db.Column(db.String(40))
-  lastname = db.Column(db.String(40))
+  firstName = db.Column(db.String(40))
+  lastName = db.Column(db.String(40))
   salary = db.Column(db.Float)
-  hiredate = db.Column(db.String(200))
+  hireDate = db.Column(db.String(200))
   position = db.Column(db.String(200))
   manager = db.Column(db.String(100))
 
-  def __init__(self, firstname, lastname, salary, hiredate, position, manager):
-    self.firstname = firstname
-    self.lastname = lastname
+  def __init__(self, firstName, lastName, salary, hireDate, position, manager):
+    self.firstName = firstName
+    self.lastName = lastName
     self.salary = salary
-    self.hiredate = hiredate
+    self.hireDate = hireDate
     self.position = position
     self.manager = manager
 
 # Employee Schema
 class EmployeeSchema(ma.Schema):
   class Meta:
-    fields = ('firstname', 'lastname', 'salary', 'hiredate', 'position', 'manager')
+    fields = ('id','firstName', 'lastName', 'salary', 'hireDate', 'position', 'manager')
 
 # Init schema
 employee_schema = EmployeeSchema()
@@ -44,14 +49,14 @@ employees_schema = EmployeeSchema(many=True)
 # Create a Employee
 @app.route('/employee', methods=['POST'])
 def add_employee():
-  firstname = request.json['firstname']
-  lastname = request.json['lastname']
+  firstName = request.json['firstName']
+  lastName = request.json['lastName']
   salary = request.json['salary']
-  hiredate = request.json['hiredate']
+  hireDate = request.json['hireDate']
   position = request.json['position']
   manager = request.json['manager']
 
-  new_employee = Employee(firstname, lastname, salary, hiredate, position, manager)
+  new_employee = Employee(firstName, lastName, salary, hireDate, position, manager)
 
   db.session.add(new_employee)
   db.session.commit()
@@ -76,18 +81,18 @@ def get_employee(id):
 def update_employee(id):
   employee = Employee.query.get(id)
 
-  firstname = request.json['firstname']
-  lastname = request.json['lastname']
+  firstName = request.json['firstName']
+  lastName = request.json['lastName']
   salary = request.json['salary']
-  hiredate = request.json['hiredate']
+  hireDate = request.json['hireDate']
   position = request.json['position']
   manager = request.json['manager']
 
 
-  employee.firstname = firstname
-  employee.lastname = lastname
+  employee.firstName = firstName
+  employee.lastName = lastName
   employee.salary = salary
-  employee.hiredate = hiredate
+  employee.hireDate = hireDate
   employee.position = position
   employee.manager = manager
 
